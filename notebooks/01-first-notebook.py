@@ -26,7 +26,7 @@ still unsettled: `.claude/rules/marimo-notebooks.md`.
 
 import marimo
 
-__generated_with = "0.24.0"
+__generated_with = "0.24.2"
 app = marimo.App(width="medium", sql_output="pandas")
 
 
@@ -37,9 +37,23 @@ def _():
     return (mo,)
 
 
+@app.cell
+def _(freight_charges):
+    print(f"There are {len(freight_charges)} freight charges.")
+    return
+
+
+@app.cell
+def _(freight_charges):
+    print(f"There are {len(freight_charges)} freight charges.")
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""# Set Up Your Machine and Push a Notebook""")
+    mo.md(r"""
+    # Set Up Your Machine and Push a Notebook
+    """)
     return
 
 
@@ -58,9 +72,34 @@ def _(mo):
 
 @app.cell
 def _():
-    freight_charges = [16.75, 22.25, 25.00, 20.25, 36.25]
+    freight_charges = [999.99, 42.00, 25.00, 20.25, 36.25]
     freight_charges
+
     return (freight_charges,)
+
+
+@app.cell
+def _(freight_charges):
+    freight_charges[0]
+    return
+
+
+@app.cell
+def _(freight_charges):
+    len(freight_charges)
+    return
+
+
+@app.cell
+def _(total):
+    total
+    return
+
+
+@app.cell
+def _(freight_charges):
+    total = sum(freight_charges)
+    return (total,)
 
 
 @app.cell(hide_code=True)
@@ -90,11 +129,20 @@ def _(mo):
 
     1. Cell A says `x = 5`. Cell B says `print(x)`. You change A to `x = 50`.
        **What does B print?**
-    2. Cell A says `orders = 3`. Cell B says `orders * 12`. You **delete cell A**.
+
+       50
+    3. Cell A says `orders = 3`. Cell B says `orders * 12`. You **delete cell A**.
        **What happens to B?**
-    3. Two different cells both say `total = ...`. **What happens?**
-    4. You put `print(total)` **above** the cell that says `total = 5`.
+
+       It has an error because the 'orders' term doesn't exist.
+    5. Two different cells both say `total = ...`. **What happens?**
+
+    the last 'total' cell that was run will be the answer
+
+    6. You put `print(total)` **above** the cell that says `total = 5`.
        **Does it run?**
+
+    if the cell that syas 'total = 5' has been run.
 
     Four experiments follow. Do them in order, and undo each one before the next.
     """)
@@ -198,6 +246,67 @@ def _(mo):
     return
 
 
+@app.cell
+def _(freight_charges):
+    #freight charges will remove the last entry
+    freight_charges[-1]
+    #I was wrong it returned the first number on the right
+    return
+
+
+@app.cell
+def _(freight_charges):
+    # it will return the up to the 4th? item because the first is 0 in python
+    freight_charges[:3]
+    # I was close, it takes three items not the item labeled as 3
+    return
+
+
+@app.cell
+def _(orders):
+    # they will return the 1st in both lists?
+    orders[0]
+
+    return
+
+
+@app.cell
+def _(freight_charges):
+    freight_charges[0]
+    return
+
+
+@app.cell
+def _():
+    #it will return the number of items in 'categories'
+    category = "Confections"
+    len(category)
+    #so the len function counts the number of characters in a string and the number of numbers in a numbered lsit? 
+
+    return
+
+
+@app.cell
+def _(orders):
+    sum(orders)
+    #it should sum yes? 
+    return
+
+
+@app.cell
+def _(orders):
+    orders * 2
+    #it returned the list twice
+    return
+
+
+@app.cell
+def _(freight_charges, orders):
+    orders + freight_charges
+    #it combines both lists which makes sense
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -218,7 +327,7 @@ def _(freight_charges, orders):
     _ax.bar([str(_o) for _o in orders], freight_charges)
     _ax.set_ylabel("freight")
     _fig
-    return
+    return (plt,)
 
 
 @app.cell(hide_code=True)
@@ -252,6 +361,35 @@ def _(mo):
     2. `list(dairy)`, then `list(dairy.values())`
     3. Draw them. Copy the two plotting lines from the chart above, and put `list(dairy)` and `list(dairy.values())` in place of `orders` and `freight_charges`.
     """)
+    return
+
+
+@app.cell
+def _(dairy):
+    dairy["split evenly"]
+    return
+
+
+@app.cell
+def _(dairy):
+    list(dairy)
+    return
+
+
+@app.cell
+def _(dairy):
+    list(dairy.values())
+    return
+
+
+@app.cell
+def _(dairy, plt):
+    import matplotlib.pyplot as pltdairy
+
+    _fig, _ax = plt.subplots(figsize=(6, 2.6))
+    _ax.bar([str(_o) for _o in list(dairy)], list(dairy.values()))
+    _ax.set_ylabel("cost")
+    _fig
     return
 
 
