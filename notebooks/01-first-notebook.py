@@ -74,7 +74,6 @@ def _(mo):
 def _():
     freight_charges = [999.99, 42.00, 25.00, 20.25, 36.25]
     freight_charges
-
     return (freight_charges,)
 
 
@@ -266,7 +265,6 @@ def _(freight_charges):
 def _(orders):
     # they will return the 1st in both lists?
     orders[0]
-
     return
 
 
@@ -282,7 +280,6 @@ def _():
     category = "Confections"
     len(category)
     #so the len function counts the number of characters in a string and the number of numbers in a numbered lsit? 
-
     return
 
 
@@ -327,7 +324,7 @@ def _(freight_charges, orders):
     _ax.bar([str(_o) for _o in orders], freight_charges)
     _ax.set_ylabel("freight")
     _fig
-    return (plt,)
+    return
 
 
 @app.cell(hide_code=True)
@@ -383,10 +380,10 @@ def _(dairy):
 
 
 @app.cell
-def _(dairy, plt):
+def _(dairy):
     import matplotlib.pyplot as pltdairy
 
-    _fig, _ax = plt.subplots(figsize=(6, 2.6))
+    _fig, _ax = pltdairy.subplots(figsize=(6, 2.6))
     _ax.bar([str(_o) for _o in list(dairy)], list(dairy.values()))
     _ax.set_ylabel("cost")
     _fig
