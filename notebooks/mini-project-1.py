@@ -1,7 +1,7 @@
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [
-#     "marimo",
+#     "marimo>=0.23.3",
 # ]
 # ///
 """Mini Project 1.
@@ -78,7 +78,11 @@ def _(mo):
 @app.cell
 def _():
     # Your inputs.
-    return
+
+    loan_amount = 400000
+    annual_rates = {30: 0.0703, 15: 0.0642}
+
+    return annual_rates, loan_amount
 
 
 @app.cell(hide_code=True)
@@ -92,7 +96,20 @@ def _(mo):
 
 
 @app.cell
-def _():
+def _(annual_rates, loan_amount):
+    monthly_payment = loan_amount * (annual_rates[30] / 12) / (1 - (1 + annual_rates[30] / 12) ** (-30 * 12))
+    new_balance = loan_amount 
+    interest_payment = new_balance * (annual_rates[30] / 12) 
+    principal_payment = monthly_payment - interest_payment 
+    payment_schedule = []
+    remaining_payments = (annual_rates[30]*12)
+    if remaining_payments > 0:
+            interest_payment = new_balance * (annual_rates[30] / 12)
+            principal_payment = monthly_payment - interest_payment
+            new_balance -= principal_payment
+            payment_schedule.append((monthly_payment, interest_payment, principal_payment, new_balance))
+
+    print(payment_schedule)        
     return
 
 
