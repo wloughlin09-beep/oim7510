@@ -102,11 +102,11 @@ def _(annual_rates, loan_amount):
     interest_payment = round(new_balance * (annual_rates[30] / 12), 2)
     principal_payment = round(monthly_payment - interest_payment, 2)
     payment_schedule = []
-    remaining_payments = (annual_rates[30]*12)
+    remaining_payments = 30 * 12
     while remaining_payments > 0:
             interest_payment = round(new_balance * (annual_rates[30] / 12), 2)
             principal_payment = round(monthly_payment - interest_payment, 2)        
-            new_balance -= principal_payment
+            new_balance -= round(principal_payment, 2)
             payment_schedule.append((monthly_payment, interest_payment, principal_payment, new_balance))
             remaining_payments -= 1
 
