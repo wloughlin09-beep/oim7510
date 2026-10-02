@@ -97,15 +97,15 @@ def _(mo):
 
 @app.cell
 def _(annual_rates, loan_amount):
-    monthly_payment = loan_amount * (annual_rates[30] / 12) / (1 - (1 + annual_rates[30] / 12) ** (-30 * 12))
+    monthly_payment = round(loan_amount * (annual_rates[30] / 12) / (1 - (1 + annual_rates[30] / 12) ** (-30 * 12)), 2)
     new_balance = loan_amount 
-    interest_payment = new_balance * (annual_rates[30] / 12) 
-    principal_payment = monthly_payment - interest_payment 
+    interest_payment = round(new_balance * (annual_rates[30] / 12), 2)
+    principal_payment = round(monthly_payment - interest_payment, 2)
     payment_schedule = []
     remaining_payments = (annual_rates[30]*12)
-    if remaining_payments > 0:
-            interest_payment = new_balance * (annual_rates[30] / 12)
-            principal_payment = monthly_payment - interest_payment
+    while remaining_payments > 0:
+            interest_payment = round(new_balance * (annual_rates[30] / 12), 2)
+            principal_payment = round(monthly_payment - interest_payment, 2)        
             new_balance -= principal_payment
             payment_schedule.append((monthly_payment, interest_payment, principal_payment, new_balance))
 
