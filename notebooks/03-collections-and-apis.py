@@ -150,16 +150,20 @@ def _():
 
 @app.cell(hide_code=True)
 def _(mo):
-    mo.md(r"""
+    mo.md("""
     ### Your written answers
 
     Several questions below ask for a sentence. This cell is where they go. Click into it, write under the letter, and press `Ctrl+Enter` (Windows) or `Cmd+Enter` (macOS).
 
-    **B ·**
+    **B · Where is B? **
 
-    **C ·**
+    **C ·
+    1. The lines on one order, which the customer can add to, remove from and reorder (list)
+    2. Every customer who has ordered from you this year, each once (set)
+    3. The units sold of each product, looked up by product name (dictionary)
+    4. One shipment's carrier, tracking number and ship date, which must not change once recorded** (tulpe)
 
-    **D ·**
+    **D ·  I would want to create a field for each ticker that keeps a running total of the shares, and the cost of the existing lot I would want to make sure that each share cost is tied to the lot so that when a sell order is found it matches the shares to the first lot to calculate gain/loss. Then have a running total without the sold lot to keep track of the remaining shares**
 
     **G ·**
     """)
@@ -225,6 +229,17 @@ def _(closing_prices):
             highest_ticker = ticker2
 
     highest_ticker
+    return
+
+
+@app.cell
+def _(closing_prices):
+    new_closing_prices = []
+
+    for ticker3, price3 in closing_prices.items():
+        new_closing_prices.append(ticker3)
+        new_closing_prices.append(round(price3*1.1, 2))
+    new_closing_prices
     return
 
 
@@ -464,6 +479,41 @@ def _():
         ("TSLA", 150, 255.70),
     ]
     holdings
+    return (holdings,)
+
+
+@app.cell
+def _(holdings):
+    portfolio_cost = 0
+    for _symbol, _shares, _price in holdings:
+
+            portfolio_cost += _shares * _price
+    print(f"${portfolio_cost:,.2f}")
+
+    return
+
+
+@app.cell
+def _(holdings):
+    holdings_by_ticker = {}
+    for _symbol2, _shares2, _price2 in holdings:
+        holdings_by_ticker[_symbol2] = {
+            "shares": _shares2,
+            "price": _price2,
+            "cost": _shares2 * _price2,
+        }
+
+    holdings_by_ticker
+    largest_ticker = None
+    largest_cost = 0
+
+    for _ticker in holdings_by_ticker:
+        _cost = holdings_by_ticker[_ticker]["cost"]
+        if _cost > largest_cost:
+            largest_cost = _cost
+            largest_ticker = _ticker
+
+    largest_ticker, largest_cost
     return
 
 
@@ -496,6 +546,77 @@ def _():
         ("2026-08-12", "AAPL", "sell", 40, 250.00),
     ]
     year_trades
+    return (year_trades,)
+
+
+@app.cell
+def _(year_trades):
+    lots_by_ticker = {} #empty list
+    gains_by_ticker = {} #empty list
+
+    for _trade in year_trades:
+        _date, _ticker, _action, _shares, _price = _trade #defining each field in the trade tuple
+        if _ticker not in lots_by_ticker:
+            lots_by_ticker[_ticker] = [] #makes buckets for each ticker in new list
+
+        if _action == "buy":
+            lots_by_ticker[_ticker].append([_shares, _price]) #adds a new lot for that ticker
+        else:
+            _shares_to_sell = _shares #labels the sold shares
+            _gain = 0 #sets initial gain amount 
+            _new_lots = [] #bucket for remainder lots after sale
+            for _lot in lots_by_ticker[_ticker]: 
+                _lot_shares = _lot[0] # num of shares in lot
+                _lot_price = _lot[1] # price of shares in lot
+                if _shares_to_sell <= 0: 
+                    # condition if no more shares to sell
+                    _new_lots.append(_lot) #keeps lot as is
+                elif _lot_shares <= _shares_to_sell: #if not fully sold
+                    _gain += _lot_shares * (_price - _lot_price) # calc gain for fully sold lot
+                    _shares_to_sell -= _lot_shares # reduces port shares by sold lot amt
+                else:
+                    _gain += _shares_to_sell * (_price - _lot_price) #calc partial lot gain
+                    _new_lots.append([_lot_shares - _shares_to_sell, _lot_price]) #remaining shares
+                    _shares_to_sell = 0 #no shares left to sell
+            lots_by_ticker[_ticker] = _new_lots #updates lots for ticker after sale
+            gains_by_ticker[_ticker] = gains_by_ticker.get(_ticker, 0) + _gain #updates total gain for ticker
+
+    print(gains_by_ticker)
+    print(lots_by_ticker)
+    return
+
+
+@app.cell
+def _(year_trades):
+    shares_by_ticker = {}
+    cost_by_ticker = {}
+    gains_by_ticker_avg = {}
+
+    for _trade in year_trades:
+        _date, _ticker, _action, _shares, _price = _trade
+
+        if _ticker not in shares_by_ticker:
+            shares_by_ticker[_ticker] = 0
+            cost_by_ticker[_ticker] = 0
+
+        if _action == "buy":
+            shares_by_ticker[_ticker] += _shares
+            cost_by_ticker[_ticker] += _shares * _price
+        else:
+            _avg_price = cost_by_ticker[_ticker] / shares_by_ticker[_ticker]
+            _gain = _shares * (_price - _avg_price)
+            gains_by_ticker_avg[_ticker] = gains_by_ticker_avg.get(_ticker, 0) + _gain
+
+            shares_by_ticker[_ticker] -= _shares
+            cost_by_ticker[_ticker] -= _shares * _avg_price
+
+    print(gains_by_ticker_avg)
+
+    for _ticker in shares_by_ticker:
+        _remaining = shares_by_ticker[_ticker]
+        _remaining_cost = cost_by_ticker[_ticker]
+        if _remaining > 0:
+            print(_ticker, _remaining, round(_remaining_cost / _remaining, 2))
     return
 
 
@@ -655,6 +776,12 @@ def _(mo):
 
     **E · The wind in a sentence.** Add a cell that takes the wind speed and its unit out of `babson_weather` and puts both into one sentence with an f-string. *Check yourself: the unit reads `mp/h`, which is how this service writes miles per hour.*
     """)
+    return
+
+
+@app.cell
+def _(babson_weather):
+    print(f"{babson_weather["current"]["wind_speed_10m"]} {babson_weather["current_units"]["wind_speed_10m"]}")
     return
 
 
