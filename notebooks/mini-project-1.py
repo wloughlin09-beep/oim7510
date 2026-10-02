@@ -108,6 +108,7 @@ def _(annual_rates, loan_amount):
             principal_payment = round(monthly_payment - interest_payment, 2)        
             new_balance -= principal_payment
             payment_schedule.append((monthly_payment, interest_payment, principal_payment, new_balance))
+            remaining_payments -= 1
 
     print(payment_schedule)        
     return
