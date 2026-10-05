@@ -158,36 +158,6 @@ def _(mo):
 
 
 @app.cell
-def _(loan_amount, months_30, payment_30, rate_30, total_interest_30):
-    extra_payment = 200
-
-    schedule_30_extra = []
-    balance_30_extra = loan_amount
-    month_30_extra = 0
-
-    while balance_30_extra > 0:
-        month_30_extra += 1
-        interest_30_extra = round(balance_30_extra * rate_30, 2)
-        principal_30_extra = round(payment_30 - interest_30_extra + extra_payment, 2)
-        if principal_30_extra > balance_30_extra:
-            principal_30_extra = balance_30_extra
-        balance_30_extra = round(balance_30_extra - principal_30_extra, 2)
-        actual_payment_30_extra = round(principal_30_extra + interest_30_extra, 2)
-        schedule_30_extra.append([month_30_extra, actual_payment_30_extra, interest_30_extra, principal_30_extra, balance_30_extra])
-
-    total_interest_30_extra = 0
-    for row3 in schedule_30_extra:
-        total_interest_30_extra += row3[2]
-
-    months_saved_30 = months_30 - month_30_extra
-    interest_saved_30 = round(total_interest_30 - total_interest_30_extra, 2)
-
-    print(f"30-year with extra $200/month: paid off in {month_30_extra} months, saving {months_saved_30} months")
-    print(f"Interest saved: ${interest_saved_30:,.2f}")
-    return
-
-
-@app.cell
 def _(schedule_30):
     balance_at_60 = schedule_30[59][4]
     balance_at_60
@@ -257,18 +227,18 @@ def _(mo):
     rate_15_input = mo.ui.slider(4.0, 9.0, value=6.42, step=0.01, label="15-year rate (%)")
     extra_payment_input = mo.ui.slider(0, 1000, value=200, step=25, label="Extra payment per month ($)")
 
-    mo.vstack([loan_amount_input, rate_30_input, rate_15_input, extra_payment_input])
-    return rate_15_input, rate_30_input
+    mo.vstack([loan_amount_input, rate_15_input, rate_30_input, extra_payment_input])
+    return loan_amount_input, rate_15_input, rate_30_input
 
 
 @app.cell
-def _(loan_amount, rate_15_input, rate_30_input):
+def _(loan_amount_input, rate_15_input, rate_30_input):
     rate_15 = rate_15_input.value / 100
     months_15 = 15 * 12
-    payment_15 = round(loan_amount * rate_15 / 12 / (1 - (1 + rate_15 / 12) ** (-months_15)), 2)
+    payment_15 = round(loan_amount_input.value * rate_15 / 12 / (1 - (1 + rate_15 / 12) ** (-months_15)), 2)
 
     schedule_15 = []
-    balance_15 = loan_amount
+    balance_15 = loan_amount_input.value
 
     for month_15 in range(1, months_15 + 1):
         interest_15 = round(balance_15 * rate_15 / 12, 2)
@@ -283,13 +253,13 @@ def _(loan_amount, rate_15_input, rate_30_input):
 
     rate_30 = rate_30_input.value / 100
     months_30 = 30 * 12
-    payment_30 = round(loan_amount * rate_30 / (1 - (1 + rate_30) ** (-months_30)), 2)
+    payment_30 = round(loan_amount_input.value * rate_30 / 12 / (1 - (1 + rate_30 / 12) ** (-months_30)), 2)
 
     schedule_30 = []
-    balance_30 = loan_amount
+    balance_30 = loan_amount_input.value
 
     for month_30 in range(1, months_30 + 1):
-        interest_30 = round(balance_30 * rate_30, 2)
+        interest_30 = round(balance_30 * rate_30 / 12, 2)
         principal_30 = round(payment_30 - interest_30, 2)
         if month_30 == months_30 or principal_30 > balance_30:
             principal_30 = balance_30
@@ -303,13 +273,13 @@ def _(loan_amount, rate_15_input, rate_30_input):
     total_interest_15 = 0
     for row5 in schedule_15:
         total_interest_15 += row5[2]
-    print(f"15-year total interest: ${total_interest_15:,.2f}")
+    print(f"15-year total interest: ${total_interest_15:,.2f} Total Paid: ${total_interest_15+loan_amount_input.value:,.2f}")
 
     total_interest_30 = 0
     for row6 in schedule_30:
         total_interest_30 += row6[2]
-    print(f"30-year total interest: ${total_interest_30:,.2f}") 
-    return months_30, payment_30, rate_30, schedule_30, total_interest_30
+    print(f"30-year total interest: ${total_interest_30:,.2f} Total Paid: ${total_interest_30+loan_amount_input.value:,.2f}")
+    return months_30, schedule_30
 
 
 @app.cell
