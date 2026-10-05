@@ -333,11 +333,32 @@ def _(extra_payment_input, loan_amount_input, rate_15_input, rate_30_input):
     print(f"30-year total interest: ${total_interest_30:,.2f} Total Paid: ${total_interest_30+loan_amount_input.value:,.2f}")
     print(f"30-year with extra ${extra_payment_input.value}/month: paid off in {month_30_extra} months, saving {months_saved_30} months")
     print(f"Interest saved: ${interest_saved_30:,.2f}")
-    return months_30, schedule_30
+    return months_30, schedule_15_extra, schedule_30, schedule_30_extra
 
 
 @app.cell
-def _():
+def _(schedule_15_extra, schedule_30_extra):
+    import altair as alt
+    import polars as pl
+
+    _rows = []
+    for _row in schedule_30_extra:
+        _rows.append({"Month": _row[0], "Balance": _row[4], "Loan": "30-year"})
+    for _row in schedule_15_extra:
+        _rows.append({"Month": _row[0], "Balance": _row[4], "Loan": "15-year"})
+
+    balance_df = pl.DataFrame(_rows)
+
+    alt.Chart(balance_df).mark_line().encode(
+        x=alt.X("Month", title="Month"),
+        y=alt.Y("Balance", title="Remaining Balance ($)"),
+        color=alt.Color("Loan", title="Loan Term"),
+        tooltip=["Loan", "Month", "Balance"]
+    ).properties(
+        title="Loan Balance Over Time: 30-Year vs 15-Year",
+        width=600,
+        height=400
+    )
     return
 
 
@@ -347,6 +368,8 @@ def _(mo):
     ## 6. How I Know These Numbers Are Right
 
     *At least one check that reaches a result a second, independent way. Name what you compared and what came out.*
+
+    I confirmed the total interest and repayment amounts with a loan amortization schedule excel sheet. The total interest was off by around $3 that the program rolled into the last payment which the excel did not. I tried a few different configurations and all matched what the program returned.
     """)
     return
 
@@ -364,6 +387,9 @@ def _(mo):
     *Pick one piece of AI output you did not accept as-is. What did it give you, what did you change, and how did you know? Point to the commit or the cell.*
 
     *If the agent got it right the first time: what did you do to verify that?*
+
+
+    The agent's code was right the first time but it was generated into seperate sections, I combied them into one input/output cell and verified the results against an excel spreadsheet.
     """)
     return
 
