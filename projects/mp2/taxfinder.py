@@ -63,6 +63,112 @@ def _(mo):
 
 @app.cell
 def _():
+    import requests
+
+    county = "Middlesex"
+    budget_dollars = 700000
+    tax_limit_dollars = 8000
+    fiscal_year = 2026
+    return budget_dollars, county, fiscal_year, requests, tax_limit_dollars
+
+
+@app.cell
+def _(county, requests):
+    middlesex_towns = []
+    page_number = 1
+
+    while True:
+        towns_reply = requests.get(
+            "https://oim.zhili.dev/ma/towns",
+            params={"county": county, "limit": 100, "page": page_number},
+            timeout=10,
+        ).json()
+        middlesex_towns.extend(towns_reply["items"])
+        if len(middlesex_towns) >= towns_reply["pagination"]["total"]:
+            break
+        page_number += 1
+
+    len(middlesex_towns)
+    return (middlesex_towns,)
+
+
+@app.cell
+def _(fiscal_year, middlesex_towns, requests):
+    town_summaries = []
+
+    for town in middlesex_towns:
+        dor_code = town["dor_code"]
+        history_reply = requests.get(
+            f"https://oim.zhili.dev/ma/towns/{dor_code}/history",
+            timeout=10,
+        ).json()
+
+        for record in history_reply["years"]:
+            if record["fiscal_year"] == fiscal_year:
+                town_summaries.append([
+                    town["name"],
+                    record["average_single_family_value_dollars"],
+                    record["residential_rate_per_thousand"],
+                    record["average_single_family_bill_dollars"],
+                ])
+
+    print(f"{len(town_summaries)} of {len(middlesex_towns)} towns had data for fiscal year {fiscal_year}")
+    return (town_summaries,)
+
+
+@app.cell
+def _(budget_dollars, tax_limit_dollars, town_summaries):
+    towns_in_budget = []
+
+    for _row in town_summaries:
+        town_name, avg_value, tax_rate, avg_bill = _row
+        if avg_value <= budget_dollars and avg_bill <= tax_limit_dollars:
+            towns_in_budget.append(_row)
+
+    def bill_amount(row):
+        return row[3]
+
+    towns_sorted = sorted(towns_in_budget, key=bill_amount)
+    towns_sorted
+    return (towns_sorted,)
+
+
+@app.cell
+def _(towns_sorted):
+    town_table = []
+    for row in towns_sorted:
+        town_table.append({
+            "town": row[0],
+            "average_home_value": row[1],
+            "residential_tax_rate": row[2],
+            "average_bill": row[3],
+        })
+
+    town_table
+    return
+
+
+@app.cell
+def _(budget_dollars, county, tax_limit_dollars, towns_sorted):
+    if len(towns_sorted) == 0:
+        print(f"No town in {county} County fits a ${budget_dollars:,} home within an ${tax_limit_dollars:,} tax bill.")
+    else:
+        cheapest = towns_sorted[0]
+        print(
+            f"In {county} County, {cheapest[0]} has the lowest average tax bill at "
+            f"${cheapest[3]:,.2f} a year, with an average home value of ${cheapest[1]:,.2f}, "
+            f"fitting the couple's ${budget_dollars:,} budget and ${tax_limit_dollars:,} limit."
+        )
+    return
+
+
+@app.cell
+def _(towns_sorted):
+    print(f"{'Town':<15}{'Avg Home Value':>16}{'Tax Rate':>12}{'Avg Bill':>12}")
+
+    for _row in towns_sorted:
+        _town, _value, _rate, _bill = _row
+        print(f"{_town:<15}{_value:>16,.0f}{_rate:>12.2f}{_bill:>12,.0f}")
     return
 
 
