@@ -62,12 +62,50 @@ def _(mo):
 
 
 @app.cell
-def _():
+def county_options():
+    county_choices = [
+        "Barnstable", "Berkshire", "Bristol", "Dukes", "Essex", "Franklin",
+        "Hampden", "Hampshire", "Middlesex", "Nantucket", "Norfolk",
+        "Plymouth", "Suffolk", "Worcester",
+    ]
+    return (county_choices,)
+
+
+@app.cell
+def settings_form_cell(county_choices, mo):
+    settings_form = mo.ui.form(
+        mo.md("""
+        **Choose a county and limits**
+
+        {county}
+
+        {budget}
+
+        {tax_limit}
+        """).batch(
+            county=mo.ui.dropdown(options=county_choices, value="Middlesex", label="County"),
+            budget=mo.ui.number(start=100000, stop=5000000, step=10000, value=700000, label="Home budget ($)"),
+            tax_limit=mo.ui.number(start=1000, stop=50000, step=100, value=8000, label="Max annual tax bill ($)"),
+        ),
+        label="Apply",
+    )
+    settings_form
+    return (settings_form,)
+
+
+@app.cell
+def _(settings_form):
     import requests
 
-    county = "Middlesex"
-    budget_dollars = 700000
-    tax_limit_dollars = 8000
+    if settings_form.value is None:
+        county = "Middlesex"
+        budget_dollars = 700000
+        tax_limit_dollars = 8000
+    else:
+        county = settings_form.value["county"]
+        budget_dollars = settings_form.value["budget"]
+        tax_limit_dollars = settings_form.value["tax_limit"]
+
     fiscal_year = 2026
     return budget_dollars, county, fiscal_year, requests, tax_limit_dollars
 
@@ -130,7 +168,7 @@ def _(budget_dollars, tax_limit_dollars, town_summaries):
 
     towns_sorted = sorted(towns_in_budget, key=bill_amount)
     towns_sorted
-    return (towns_sorted,)
+    return towns_in_budget, towns_sorted
 
 
 @app.cell
@@ -169,6 +207,118 @@ def _(towns_sorted):
     for _row in towns_sorted:
         _town, _value, _rate, _bill = _row
         print(f"{_town:<15}{_value:>16,.0f}{_rate:>12.2f}{_bill:>12,.0f}")
+    return
+
+
+@app.cell
+def _():
+    ##Going Further Items
+
+    return
+
+
+@app.cell
+def _(towns_in_budget):
+    def tax_rate_amount(row):
+        return row[2]
+
+    towns_by_rate = sorted(towns_in_budget, key=tax_rate_amount)
+
+    print(f"{'Town':<15}{'Avg Home Value':>16}{'Tax Rate':>12}{'Avg Bill':>12}")
+
+    for _row in towns_by_rate:
+        _town, _value, _rate, _bill = _row
+        print(f"{_town:<15}{_value:>16,.0f}{_rate:>12.2f}{_bill:>12,.0f}")
+    return
+
+
+@app.cell
+def _(fiscal_year, middlesex_towns, requests, towns_sorted):
+    lowest_three_names = [row[0] for row in towns_sorted[:3]]
+
+    ten_year_start = fiscal_year - 9
+
+    for _town_name in lowest_three_names:
+        _dor_code = None
+        for _town in middlesex_towns:
+            if _town["name"] == _town_name:
+                _dor_code = _town["dor_code"]
+
+        _history_reply = requests.get(
+            f"https://oim.zhili.dev/ma/towns/{_dor_code}/history",
+            timeout=10,
+        ).json()
+
+        print(_town_name)
+        for _year_record in _history_reply["years"]:
+            if ten_year_start <= _year_record["fiscal_year"] <= fiscal_year:
+                _bill = _year_record["average_single_family_bill_dollars"]
+                if _bill is None:
+                    print(" ", _year_record["fiscal_year"], "no data")
+                else:
+                    print(" ", _year_record["fiscal_year"], f"${_bill:,}")
+        print()
+    return lowest_three_names, ten_year_start
+
+
+@app.cell
+def _(
+    fiscal_year,
+    lowest_three_names,
+    middlesex_towns,
+    requests,
+    ten_year_start,
+):
+    print("% change in average bill, over the years data is available:")
+
+    for _town_name in lowest_three_names:
+        _dor_code = None
+        for _town in middlesex_towns:
+            if _town["name"] == _town_name:
+                _dor_code = _town["dor_code"]
+
+        _history_reply = requests.get(
+            f"https://oim.zhili.dev/ma/towns/{_dor_code}/history",
+            timeout=10,
+        ).json()
+
+        _first_year = None
+        _first_bill = None
+        _last_year = None
+        _last_bill = None
+
+        for _year_record in _history_reply["years"]:
+            if ten_year_start <= _year_record["fiscal_year"] <= fiscal_year:
+                _bill = _year_record["average_single_family_bill_dollars"]
+                if _bill is not None:
+                    if _first_bill is None:
+                        _first_year = _year_record["fiscal_year"]
+                        _first_bill = _bill
+                    _last_year = _year_record["fiscal_year"]
+                    _last_bill = _bill
+
+        _pct_change = (_last_bill - _first_bill) / _first_bill * 100
+        _years_elapsed = _last_year - _first_year
+        _pct_change_per_year = _pct_change / _years_elapsed
+
+        print(f"  {_town_name}: {_first_year} (${_first_bill:,}) to {_last_year} (${_last_bill:,}) = {_pct_change:.1f}% total, {_pct_change_per_year:.1f}% per year over {_years_elapsed} years")
+    return
+
+
+@app.cell
+def _(middlesex_towns, towns_sorted):
+    print("Average bill as a share of income per person:")
+
+    for _row in towns_sorted:
+        _town_name, _avg_value, _tax_rate, _avg_bill = _row
+
+        _income_per_capita = None
+        for _town in middlesex_towns:
+            if _town["name"] == _town_name:
+                _income_per_capita = _town["income_per_capita_dollars"]
+
+        _share_of_income = _avg_bill / _income_per_capita * 100
+        print(f"  {_town_name}: bill ${_avg_bill:,} / income ${_income_per_capita:,} = {_share_of_income:.1f}%")
     return
 
 
