@@ -80,8 +80,8 @@ def _():
     # Your inputs.
 
     loan_amount = 400000
-    annual_rates = {30: 0.0703, 15: 0.0642}
-    return annual_rates, loan_amount
+    annual_rates1 = {30: 0.0703, 15: 0.0642}
+    return (loan_amount,)
 
 
 @app.cell(hide_code=True)
@@ -97,7 +97,6 @@ def _(mo):
 @app.cell
 def _():
     #my code no AI help, cant get it to round to save my life
-
     return
 
 
@@ -323,7 +322,8 @@ def _(extra_payment_input, loan_amount_input, rate_15_input, rate_30_input):
         total_interest_30 += row6[2]
     interest_saved_30 = round(total_interest_30 - total_interest_30_extra, 2)
 
-
+    print(schedule_15)
+    print(schedule_30)
     print(f"15-year total interest: ${total_interest_15:,.2f} Total Paid: ${total_interest_15+loan_amount_input.value:,.2f}")
 
     print(f"15-year with extra ${extra_payment_input.value}/month: paid off in {month_15_extra} months, saving {months_saved_15} months")

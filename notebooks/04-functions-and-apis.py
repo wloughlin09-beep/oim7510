@@ -399,7 +399,7 @@ def _(requests):
         return history_reply.json()["years"][0]["average_single_family_value_dollars"]
 
 
-    
+
 
 
     return (town_history,)
@@ -579,6 +579,11 @@ def _(mo):
     - [ ] I can read every page of an API that sends pages, and check the count against the total
     - [ ] I can send data to an API with a POST and a header
     """)
+    return
+
+
+@app.cell
+def _():
     return
 
 
