@@ -293,8 +293,67 @@ def _(mo):
     mo.md(r"""
     ##Working With the Agent.
 
-    The agent did a pretty good job of pulling the correct items, to confirm I double checked two items the # of towns and the lowest town cost with two additonal functions. In addition I manually went to the API and spot checked a few numbers to make sure they were pulling in correctly.
+    The agent did a pretty good job of pulling the correct items, to confirm I double checked two items the # of towns and the lowest town cost with two additonal functions. In addition I manually went to the API and spot checked a few numbers to make sure they matched.
     """)
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ## Reading It Back.
+
+    I wanted to take the main task and reverse it and create a table to towns that were out of budget to make sure I understood the mechanics of how the AI was creating the tables. This also serves as a further check of the information as there should no be any overlap between the printed tables and all towns shoudl be represented between the two tables. I expect the table to return the highest cost towns sorted by cost in decending order.
+    """)
+    return
+
+
+@app.cell
+def _(budget_dollars, tax_limit_dollars, town_summaries):
+    def _():
+        towns_out_of_budget = []
+
+        for _row in town_summaries:
+            town_name, avg_value, tax_rate, avg_bill = _row
+            if avg_value >= budget_dollars and avg_bill >= tax_limit_dollars:
+                towns_out_of_budget.append(_row)
+
+        def bill_amount(row):
+            return row[3]
+
+        return sorted(towns_out_of_budget, key=bill_amount)
+
+
+    expensive_towns_sorted = _()
+    expensive_towns_sorted
+    return (expensive_towns_sorted,)
+
+
+@app.cell
+def _(expensive_towns_sorted):
+    def _():
+        expensive_town_table = []
+        for row in expensive_towns_sorted:
+            expensive_town_table.append({
+                "town": row[0],
+                "average_home_value": row[1],
+                "residential_tax_rate": row[2],
+                "average_bill": row[3],
+            })
+        return expensive_town_table
+
+
+    _()
+    return
+
+
+@app.cell
+def _(expensive_towns_sorted):
+    print(f"{'Town':<15}{'Avg Home Value':>16}{'Tax Rate':>12}{'Avg Bill':>12}")
+
+    for _row in expensive_towns_sorted:
+        _town, _value, _rate, _bill = _row
+        print(f"{_town:<15}{_value:>16,.0f}{_rate:>12.2f}{_bill:>12,.0f}")
     return
 
 
