@@ -55,7 +55,7 @@ def _(mo):
     mo.md(r"""
     ##Question 1: The Question. Who would use this, and what decision does it help them make?
 
-    The users of this program could be potential home buyers who are trying to decide what town to live in based on affordability and their income. It helps to narrow down towns where they can afford to live based on the county financial informaiton.
+    The users of this program could be potential home buyers who are trying to decide what town to live in based on affordability and their income. It helps to narrow down towns where they can afford to live based on the county financial information.
     """)
     return
 
@@ -63,12 +63,10 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ## Notes while I figure this out: We want to pull every town in the county including paginations.We need to loop through pages and collect all towns, handling the "next page" button until it no longer exists.
+    ##Notes while I figure this out:
 
-    I will want to check the data I pull against the data that the document actually shows. Once I am able to get all of the data throgh the pagination I will want to be able to filter against both limits given in the request.
-
-    Once that filter is working I will want to create a table and not just a one sentense answer.
-    Honestly I had a really hard time trying to do any of this without the AI, all of my code failed and had to pivot to using the chat bot to help with the step by step process.
+    We want to pull every town in the county including paginations. We need to loop through pages and collect all towns, handling the "next page" button until it no longer exists.
+    I will want to check the data I pull against the data that the document actually shows. Once I am able to get all of the data through the pagination I will want to be able to filter against both limits given in the request. Once that filter is working I will want to create a table and not just a one sentence answer. Honestly I had a really hard time trying to do any of this without the AI, all of my code failed and had to pivot to using the chat bot to help with the step by step process.
     """)
     return
 
@@ -76,9 +74,8 @@ def _(mo):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    ##2 Inputs
-
-    The first input cell is the origional used before the "going further" section. Second cell added below with the ability to change the inputs in a drop down cell.
+    2 Inputs
+    The first input cell is the original used before the "going further" section. Second cell added below with the ability to change the inputs in a drop down cell.
     """)
     return
 
@@ -161,9 +158,11 @@ def _(county, requests):
 def _(mo):
     mo.md(r"""
     ##Question #6
-    Double Checking items given by the code The below two cells using a looping mechanism keeping only the smallest bill seen. and compares it to the towns sorted value to check for consistancy.
+    Double Checking items given by the code The below two cells using a looping mechanism keeping only the smallest bill seen. and compares it to the towns sorted value to check for consistency.
 
     The second check is to confirm the town count, rather than using len(county_town) and going through every page it looks at the pagination on page 1's total.
+
+    Also my changes made in part 8 to sort through the most expensive towns out of the budget created a further check to make sure that no towns appeared on both lists and that between the two lists the entire population of towns was generated.
     """)
     return
 
@@ -293,7 +292,7 @@ def _(mo):
     mo.md(r"""
     ##Working With the Agent.
 
-    The agent did a pretty good job of pulling the correct items, to confirm I double checked two items the # of towns and the lowest town cost with two additonal functions. In addition I manually went to the API and spot checked a few numbers to make sure they matched.
+    The agent did a pretty good job of pulling the correct items, to confirm I double checked two items the # of towns and the lowest town cost with two additional functions. In addition, I manually went to the API and spot checked a few numbers to make sure they matched.
     """)
     return
 
@@ -303,9 +302,9 @@ def _(mo):
     mo.md(r"""
     ## Reading It Back.
 
-    I wanted to take the main task and reverse it and create a table to towns that were out of budget to make sure I understood the mechanics of how the AI was creating the tables. This also serves as a further check of the information as there should no be any overlap between the printed tables and all towns shoudl be represented between the two tables. I expect the table to return the highest cost towns sorted by cost in decending order.
+    I wanted to take the main task and reverse it and create a table to towns that were out of budget to make sure I understood the mechanics of how the AI was creating the tables. This also serves as a further check of the information as there should no be any overlap between the printed tables and all towns should be represented between the two tables. I expect the table to return the highest cost towns sorted by cost in descending order.
 
-    After running the code I found that I forgot to change the sorting to be in decending order rather than ascending
+    After running the code I found that I forgot to change the sorting to be in descending order rather than ascending
     """)
     return
 
@@ -363,6 +362,13 @@ def _(expensive_towns_sorted):
 def _(mo):
     mo.md(r"""
     ## Going Further Items
+
+    I tried several going further items to see how the data could be further changed or made easy for a non-programmer to change.
+
+    I changed the ranking to sort by tax-rate and saw that the order did change, the town with the lowest bill will not necessarily be the one with the lowest rate, as the bill is the relationship between the rate and the home value.
+
+    The three tows with the lowest bills on the list had an interesting twist for comparing them as two out of the three did not have the full ten years on history available. So to make the comparison fair I had to change it to a % change on an annualized basis or change the comparison to a shorter term for which all three towns would have information available.
+    Finally adding the average income and the bill as a % of that gave a further interesting comparison where the cost of living is the center rather than the raw numbers.
     """)
     return
 
