@@ -304,6 +304,8 @@ def _(mo):
     ## Reading It Back.
 
     I wanted to take the main task and reverse it and create a table to towns that were out of budget to make sure I understood the mechanics of how the AI was creating the tables. This also serves as a further check of the information as there should no be any overlap between the printed tables and all towns shoudl be represented between the two tables. I expect the table to return the highest cost towns sorted by cost in decending order.
+
+    After running the code I found that I forgot to change the sorting to be in decending order rather than ascending
     """)
     return
 
@@ -321,7 +323,7 @@ def _(budget_dollars, tax_limit_dollars, town_summaries):
         def bill_amount(row):
             return row[3]
 
-        return sorted(towns_out_of_budget, key=bill_amount)
+        return sorted(towns_out_of_budget, key=bill_amount, reverse=True)
 
 
     expensive_towns_sorted = _()
