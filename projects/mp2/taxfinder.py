@@ -56,7 +56,9 @@ def _(mo):
 
     I will want to check the data I pull against the data that the document actually shows. Once I am able to get all of the data throgh the pagination I will want to be able to filter against both limits given in the request.
 
-    Once that filter is working I will want to create a table and not just a one sentense answer
+    Once that filter is working I will want to create a table and not just a one sentense answer.
+
+    Honestly I had a really hard time trying to do any of this without the AI, all of my code failed and had to pivot to using the chat bot to help with the step by step process.
     """)
     return
 
@@ -112,7 +114,7 @@ def _(settings_form):
 
 @app.cell
 def _(county, requests):
-    middlesex_towns = []
+    county_towns = []
     page_number = 1
 
     while True:
@@ -121,20 +123,20 @@ def _(county, requests):
             params={"county": county, "limit": 100, "page": page_number},
             timeout=10,
         ).json()
-        middlesex_towns.extend(towns_reply["items"])
-        if len(middlesex_towns) >= towns_reply["pagination"]["total"]:
+        county_towns.extend(towns_reply["items"])
+        if len(county_towns) >= towns_reply["pagination"]["total"]:
             break
         page_number += 1
 
-    len(middlesex_towns)
-    return (middlesex_towns,)
+    len(county_towns)
+    return (county_towns,)
 
 
 @app.cell
-def _(fiscal_year, middlesex_towns, requests):
+def _(county_towns, fiscal_year, requests):
     town_summaries = []
 
-    for town in middlesex_towns:
+    for town in county_towns:
         dor_code = town["dor_code"]
         history_reply = requests.get(
             f"https://oim.zhili.dev/ma/towns/{dor_code}/history",
@@ -150,7 +152,7 @@ def _(fiscal_year, middlesex_towns, requests):
                     record["average_single_family_bill_dollars"],
                 ])
 
-    print(f"{len(town_summaries)} of {len(middlesex_towns)} towns had data for fiscal year {fiscal_year}")
+    print(f"{len(town_summaries)} of {len(county_towns)} towns had data for fiscal year {fiscal_year}")
     return (town_summaries,)
 
 
@@ -233,14 +235,14 @@ def _(towns_in_budget):
 
 
 @app.cell
-def _(fiscal_year, middlesex_towns, requests, towns_sorted):
+def _(county_towns, fiscal_year, requests, towns_sorted):
     lowest_three_names = [row[0] for row in towns_sorted[:3]]
 
     ten_year_start = fiscal_year - 9
 
     for _town_name in lowest_three_names:
         _dor_code = None
-        for _town in middlesex_towns:
+        for _town in county_towns:
             if _town["name"] == _town_name:
                 _dor_code = _town["dor_code"]
 
@@ -262,18 +264,12 @@ def _(fiscal_year, middlesex_towns, requests, towns_sorted):
 
 
 @app.cell
-def _(
-    fiscal_year,
-    lowest_three_names,
-    middlesex_towns,
-    requests,
-    ten_year_start,
-):
+def _(county_towns, fiscal_year, lowest_three_names, requests, ten_year_start):
     print("% change in average bill, over the years data is available:")
 
     for _town_name in lowest_three_names:
         _dor_code = None
-        for _town in middlesex_towns:
+        for _town in county_towns:
             if _town["name"] == _town_name:
                 _dor_code = _town["dor_code"]
 
@@ -306,14 +302,14 @@ def _(
 
 
 @app.cell
-def _(middlesex_towns, towns_sorted):
+def _(county_towns, towns_sorted):
     print("Average bill as a share of income per person:")
 
     for _row in towns_sorted:
         _town_name, _avg_value, _tax_rate, _avg_bill = _row
 
         _income_per_capita = None
-        for _town in middlesex_towns:
+        for _town in county_towns:
             if _town["name"] == _town_name:
                 _income_per_capita = _town["income_per_capita_dollars"]
 

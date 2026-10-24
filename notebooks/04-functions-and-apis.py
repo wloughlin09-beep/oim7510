@@ -546,11 +546,46 @@ def _(mo):
     return
 
 
+@app.cell
+def _(requests):
+    board_reply = requests.post(
+        "https://oim.zhili.dev/message",
+        headers={"x-token": "wloughlin09-beep"},
+        json={"message": "Hello from Bridget"},
+        timeout=10,
+    )
+    board_reply.status_code, board_reply.json()
+    return
+
+
+@app.cell
+def _(requests):
+    delete_reply = requests.delete(
+        "https://oim.zhili.dev/message",
+        headers={"x-token": "wloughlin09-beep"},
+        timeout=10,
+    )
+    delete_reply.status_code, delete_reply.json()
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
     > **Advanced · G · Take it down.** `requests.delete` on the same address, with the same header, removes your line. Run it twice and compare the two replies.
     """)
+    return
+
+
+@app.cell
+def _(requests):
+    board_reply = requests.delete(
+        "https://oim.zhili.dev/message",
+        headers={"x-token": "wloughlin09-beep"},
+        json={"message": "Hello from Bridget"},
+        timeout=10,
+    )
+    board_reply.status_code, board_reply.json()
     return
 
 
