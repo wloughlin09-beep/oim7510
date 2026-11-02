@@ -40,3 +40,7 @@ erDiagram
     }
 '''
     
+## One row of members is each member's information
+## One row of product is an avialable item for purchase
+## one row of options is a drink option
+## One row of Orders is one order placed by one customer
