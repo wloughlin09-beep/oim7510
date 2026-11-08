@@ -183,3 +183,4 @@ cython_debug/
 .venv/
 __marimo__/
 __pycache__/
+*.duckdb*
