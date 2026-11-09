@@ -366,24 +366,20 @@ def _(mo):
     return
 
 
-@app.cell
-def _(database, duckdb):
-    # A row it refuses: try to insert an order line with quantity 0, which
-    # breaks the rule "a quantity is more than zero". ask() only reads, using
-    # a read-only connection, so this insert opens its own short write
-    # connection instead, and closes it right away.
+app._unparsable_cell(
+    """
+
     try:
         with duckdb.connect(database) as _con:
-            _con.execute("""
+            _con.execute(\"\"\"
                 INSERT INTO order_lines (order_line_id, order_id, product_id, quantity, unit_price)
                 VALUES ('OL999999', 'OR00001', 'PR001', 0, 3.50)
-            """)
-        rejected_row_message = "no error: the row was inserted (unexpected)"
-    except Exception as e:
-        rejected_row_message = str(e)
+            \"\"\")
 
-    print(rejected_row_message)
-    return
+    except Exception as e:
+    """,
+    name="_"
+)
 
 
 if __name__ == "__main__":
