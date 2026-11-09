@@ -1,0 +1,23 @@
+product_id,product_name,category,price,cost,available_today
+PR001,Drip Coffee,coffee,2.96,1.46,True
+PR002,Latte,coffee,1.91,0.77,True
+PR003,Cappuccino,coffee,1.12,1.62,True
+PR004,Americano,coffee,3.27,1.44,False
+PR005,Cold Brew,coffee,3.74,1.46,True
+PR006,Espresso,coffee,3.28,1.77,True
+PR007,Mocha,coffee,2.81,1.08,True
+PR008,Macchiato,coffee,2.83,1.26,True
+PR009,Green Tea,tea,2.31,0.96,True
+PR010,Black Tea,tea,1.3,0.72,True
+PR011,Chai Latte,tea,1.72,1.07,True
+PR012,Herbal Tea,tea,1.29,0.52,True
+PR013,Croissant,food,5.84,2.43,True
+PR014,Blueberry Muffin,food,4.66,2.38,True
+PR015,Bagel,food,2.61,1.14,True
+PR016,Avocado Toast,food,1.09,1.59,True
+PR017,Banana Bread,food,3.36,1.65,True
+PR018,Granola Bar,food,3.15,1.93,False
+PR019,Bottled Water,other,1.34,0.65,True
+PR020,Orange Juice,other,2.59,1.27,True
+PR021,Hot Chocolate,other,2.97,1.16,True
+PR022,Iced Tea,other,1.54,0.61,True
