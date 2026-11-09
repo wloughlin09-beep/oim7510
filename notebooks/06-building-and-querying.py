@@ -388,7 +388,23 @@ def _(database, duckdb):
     def _():
         try:
             with duckdb.connect(database) as _con:
-                _con.execute("INSERT INTO towns VALUES ('Barnstab', 'Welsley', 0, 100, 100)")
+                _con.execute("INSERT INTO towns VALUES ('Testville', 'Barnstable', 0, 10000, 5000)")
+            refused = "accepted"
+        except duckdb.ConstraintException as _error:
+            refused = str(_error).splitlines()[0]
+        return refused
+
+
+    _()
+    return
+
+
+@app.cell
+def _(database, duckdb):
+    def _():
+        try:
+            with duckdb.connect(database) as _con:
+                _con.execute("INSERT INTO towns VALUES ('Barnstable', 'Barnstable', 10000, 50000, 6000)")
             refused = "accepted"
         except duckdb.ConstraintException as _error:
             refused = str(_error).splitlines()[0]
