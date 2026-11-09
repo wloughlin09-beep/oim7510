@@ -23,6 +23,14 @@ def _(duckdb, mo):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ##The Tables
+    """)
+    return
+
+
 @app.cell
 def _(mo):
     _df = mo.sql(f"""DROP TABLE IF EXISTS payments;
@@ -90,6 +98,14 @@ def _(mo):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ##A Look at the Data
+    """)
+    return
+
+
 @app.cell
 def _(mo):
     import polars as pl
@@ -128,7 +144,7 @@ def _(orders_by_hour):
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
-    Real business data for a cafe would not look like this, you would expect sharp spikes in the morning and early afternoon, this is mostly flat, I will change the make data file to generate more realistic data by adding weighting to typical peak periods.
+    Real business data for a cafe would not look like this the origional data, you would expect sharp spikes in the morning and early afternoon, this is mostly flat, I changed the make data file to generate more realistic data by adding weighting to typical peak periods. Once that change was made the data looks more true to life.
     """)
     return
 

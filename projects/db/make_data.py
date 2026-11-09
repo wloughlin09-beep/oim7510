@@ -30,11 +30,23 @@ END_DATE = date(2026, 9, 30)
 TOTAL_DAYS = (END_DATE - START_DATE).days
 
 
+# relative weights for each hour of the day: a real cafe gets a morning
+# rush and a lunch bump, then tapers off in the afternoon and evening
+HOUR_WEIGHTS = {
+    7: 3, 8: 8, 9: 10, 10: 6, 11: 5, 12: 9, 13: 7,
+    14: 4, 15: 4, 16: 5, 17: 4, 18: 3, 19: 2,
+}
+HOURS = list(HOUR_WEIGHTS.keys())
+WEIGHTS = list(HOUR_WEIGHTS.values())
+
+
 def random_order_datetime():
-    """Pick a random date in range and a random time during cafe hours."""
+    """Pick a random date in range and a time weighted toward busy hours."""
     offset = random.randint(0, TOTAL_DAYS)
     day = START_DATE + timedelta(days=offset)
-    hour = random.randint(7, 19)
+    # random.choices, like random.choice, picks one item from a list, but
+    # it can favor some items over others using a list of weights
+    hour = random.choices(HOURS, weights=WEIGHTS, k=1)[0]
     minute = random.randint(0, 59)
     second = random.randint(0, 59)
     return datetime(day.year, day.month, day.day, hour, minute, second)
