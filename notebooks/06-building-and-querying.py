@@ -466,10 +466,13 @@ def _(ask):
 @app.cell
 def _(ask):
     ask("""
-        SELECT name, population, average_single_family_bill_dollars
+        SELECT towns.name, towns.population, towns.average_single_family_bill_dollars,
+           counties.name AS county,
+           towns.population * 100.0 / counties.population AS pct_of_county
         FROM towns
-        WHERE population >50000
-        ORDER BY average_single_family_bill_dollars DESC
+        JOIN counties ON towns.county = counties.name
+        WHERE towns.population > 50000
+        ORDER BY towns.average_single_family_bill_dollars DESC
         LIMIT 5
     """)
     return
