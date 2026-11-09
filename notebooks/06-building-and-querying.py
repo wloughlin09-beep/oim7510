@@ -468,7 +468,7 @@ def _(ask):
     ask("""
         SELECT towns.name, towns.population, towns.average_single_family_bill_dollars,
            counties.name AS county,
-           towns.population * 100.0 / counties.population AS pct_of_county
+           ROUND(towns.population * 100.0 / counties.population, 2) AS pct_of_county
         FROM towns
         JOIN counties ON towns.county = counties.name
         WHERE towns.population > 50000
