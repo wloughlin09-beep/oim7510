@@ -367,6 +367,38 @@ def _(mo):
     return
 
 
+@app.cell
+def _(database, duckdb):
+    def _():
+        try:
+            with duckdb.connect(database) as _con:
+                _con.execute("INSERT INTO towns VALUES ('Barnstab', 'Welsley', 0, 100, 100)")
+            refused = "accepted"
+        except duckdb.ConstraintException as _error:
+            refused = str(_error).splitlines()[0]
+        return refused
+
+
+    _()
+    return
+
+
+@app.cell
+def _(database, duckdb):
+    def _():
+        try:
+            with duckdb.connect(database) as _con:
+                _con.execute("INSERT INTO towns VALUES ('Barnstab', 'Welsley', 0, 100, 100)")
+            refused = "accepted"
+        except duckdb.ConstraintException as _error:
+            refused = str(_error).splitlines()[0]
+        return refused
+
+
+    _()
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
