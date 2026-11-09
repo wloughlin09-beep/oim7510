@@ -90,5 +90,40 @@ def _(mo):
     return
 
 
+@app.cell
+def _(mo):
+    import polars as pl
+
+    orders_raw = pl.read_csv(mo.notebook_dir() / "data" / "orders.csv", try_parse_dates=True)
+    orders_raw.head()
+    return orders_raw, pl
+
+
+@app.cell
+def _(orders_raw, pl):
+    orders_by_hour = (
+        orders_raw
+        .with_columns(pl.col("order_datetime").dt.hour().alias("hour"))
+        .group_by("hour")
+        .agg(pl.len().alias("num_orders"))
+        .sort("hour")
+    )
+    orders_by_hour
+    return (orders_by_hour,)
+
+
+@app.cell
+def _(orders_by_hour):
+    import matplotlib.pyplot as plt
+
+    fig, ax = plt.subplots()
+    ax.bar(orders_by_hour["hour"], orders_by_hour["num_orders"])
+    ax.set_xlabel("hour of day")
+    ax.set_ylabel("number of orders")
+    ax.set_title("Orders by hour of day")
+    fig
+    return
+
+
 if __name__ == "__main__":
     app.run()
