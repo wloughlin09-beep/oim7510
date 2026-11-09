@@ -56,8 +56,7 @@ def _(mo):
         category         VARCHAR NOT NULL CHECK (category IN ('coffee', 'tea', 'food', 'other')),
         price            DECIMAL(10,2) NOT NULL,
         cost             DECIMAL(10,2) NOT NULL,
-        available_today  BOOLEAN NOT NULL DEFAULT TRUE,
-        CHECK (price >= cost)
+        available_today  BOOLEAN NOT NULL DEFAULT TRUE
     );
 
     CREATE TABLE options (
@@ -92,7 +91,7 @@ def _(mo):
     CREATE TABLE payments (
         payment_id  VARCHAR PRIMARY KEY,
         order_id    VARCHAR NOT NULL REFERENCES orders(order_id),
-        method      VARCHAR NOT NULL CHECK (method IN ('cash', 'card', 'app', 'points')),
+        method      VARCHAR NOT NULL,
         amount      DECIMAL(10,2) NOT NULL CHECK (amount > 0)
     );""")
     return
@@ -154,6 +153,32 @@ def _(mo):
     mo.md(r"""
     ##Row Counts
     """)
+    return
+
+
+@app.cell
+def _(
+    line_options,
+    members,
+    mo,
+    options,
+    order_lines,
+    orders,
+    payments,
+    products,
+):
+    row_counts = mo.sql(
+        f"""
+        SELECT 'members' AS table_name, COUNT(*) AS num_rows FROM members
+        UNION ALL SELECT 'products', COUNT(*) FROM products
+        UNION ALL SELECT 'options', COUNT(*) FROM options
+        UNION ALL SELECT 'orders', COUNT(*) FROM orders
+        UNION ALL SELECT 'order_lines', COUNT(*) FROM order_lines
+        UNION ALL SELECT 'line_options', COUNT(*) FROM line_options
+        UNION ALL SELECT 'payments', COUNT(*) FROM payments
+        ORDER BY table_name
+        """
+    )
     return
 
 
