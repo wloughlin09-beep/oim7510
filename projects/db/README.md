@@ -1,4 +1,8 @@
-##C · Babson Bean Café
+## The Scenario.
+
+Option C Babson Bean Cafe
+
+## The ERD
 
 ```mermaid
 erDiagram
@@ -62,15 +66,18 @@ erDiagram
         decimal amount
     }
 ```
-    
-## One row of members is one loyalty member and their contact and points info.
-## One row of products is one item on the menu.
-## One row of options is one add-on a drink can carry.
-## One row of orders is one order, placed by a member or not.
-## One row of order_lines is one product ordered on one order.
-## One row of line_options is one option charged on one order line.
-## One row of payments is one amount paid toward one order.
 
+## What One Row Means    
+One row of members is one loyalty member and their contact and points info.
+One row of products is one item on the menu.
+One row of options is one add-on a drink can carry.
+One row of orders is one order, placed by a member or not.
+One row of order_lines is one product ordered on one order.
+One row of line_options is one option charged on one order line.
+One row of payments is one amount paid toward one order.
+
+
+## Design Choices
 Which key you chose where the business already had one, such as an email or a ticker, and why. - I chose differnet keys from what the business already had in the case of members, where an email or phone number because those can change with time and thus are not appropriate as a pk which shoudl be stataic. 
 Which relationships are optional, and what in the scenario tells you so. - Members to orders is an optional relationship because not all customers to the shop will be members and thus can have a null value. Also Order_lines to Line_options is optional because a none is also a valid response where there is no customization 
 Which of the scenario's rules your tables cannot hold, and how you will check it instead. -- The biggest is the order's payments must add to the order's total, because it spans several tables CHECK constriant can't work so this must be checked with a Query that sums the order_id's payment amount against the order_lines quanitiy ordered and the product's price. 
