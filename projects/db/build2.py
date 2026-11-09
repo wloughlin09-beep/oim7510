@@ -33,7 +33,8 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    _df = mo.sql(f"""DROP TABLE IF EXISTS payments;
+    _df = mo.sql(f"""DROP VIEW IF EXISTS weekly_top_sellers;
+    DROP TABLE IF EXISTS payments;
     DROP TABLE IF EXISTS line_options;
     DROP TABLE IF EXISTS order_lines;
     DROP TABLE IF EXISTS orders;
@@ -93,7 +94,30 @@ def _(mo):
         order_id    VARCHAR NOT NULL REFERENCES orders(order_id),
         method      VARCHAR NOT NULL,
         amount      DECIMAL(10,2) NOT NULL CHECK (amount > 0)
-    );""")
+    );
+
+    -- "What were our best-selling products this past week?" -- a question the
+    -- business would ask every week. CREATE VIEW saves this query under a
+    -- name; anybody can run SELECT * FROM weekly_top_sellers and always get
+    -- the answer for whatever rows are in the tables right now.
+    CREATE VIEW weekly_top_sellers AS
+    WITH _most_recent AS (
+        SELECT MAX(order_datetime) AS latest_order FROM orders
+    )
+    SELECT
+        p.product_id,
+        p.product_name,
+        p.category,
+        SUM(ol.quantity) AS units_sold,
+        ROUND(SUM(ol.quantity * ol.unit_price), 2) AS revenue
+    FROM order_lines ol
+    JOIN orders o ON o.order_id = ol.order_id
+    JOIN products p ON p.product_id = ol.product_id
+    CROSS JOIN _most_recent
+    WHERE o.order_datetime > _most_recent.latest_order - INTERVAL 7 DAY
+    GROUP BY p.product_id, p.product_name, p.category
+    ORDER BY units_sold DESC;
+    """)
     return
 
 
@@ -181,6 +205,7 @@ def _(database, duckdb):
     duckdb.query(f"ATTACH '{_file_path}' AS filedb")
     duckdb.query("USE filedb")
 
+    duckdb.query("DROP VIEW IF EXISTS weekly_top_sellers")
     duckdb.query("DROP TABLE IF EXISTS payments")
     duckdb.query("DROP TABLE IF EXISTS line_options")
     duckdb.query("DROP TABLE IF EXISTS order_lines")
@@ -266,6 +291,26 @@ def _(database, duckdb):
     duckdb.query("INSERT INTO order_lines SELECT * FROM memory.order_lines")
     duckdb.query("INSERT INTO line_options SELECT * FROM memory.line_options")
     duckdb.query("INSERT INTO payments SELECT * FROM memory.payments")
+
+    duckdb.query("""
+        CREATE VIEW weekly_top_sellers AS
+        WITH _most_recent AS (
+            SELECT MAX(order_datetime) AS latest_order FROM orders
+        )
+        SELECT
+            p.product_id,
+            p.product_name,
+            p.category,
+            SUM(ol.quantity) AS units_sold,
+            ROUND(SUM(ol.quantity * ol.unit_price), 2) AS revenue
+        FROM order_lines ol
+        JOIN orders o ON o.order_id = ol.order_id
+        JOIN products p ON p.product_id = ol.product_id
+        CROSS JOIN _most_recent
+        WHERE o.order_datetime > _most_recent.latest_order - INTERVAL 7 DAY
+        GROUP BY p.product_id, p.product_name, p.category
+        ORDER BY units_sold DESC
+    """)
 
     duckdb.query("USE memory")
     duckdb.query("DETACH filedb")
@@ -380,6 +425,12 @@ app._unparsable_cell(
     """,
     name="_"
 )
+
+
+@app.cell
+def _(mo, weekly_top_sellers):
+    _df = mo.sql(f"""SELECT * FROM weekly_top_sellers""")
+    return
 
 
 if __name__ == "__main__":
