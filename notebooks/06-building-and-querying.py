@@ -451,6 +451,30 @@ def _(mo):
     return
 
 
+@app.cell
+def _(ask):
+    ask("""
+        SELECT name, population, average_single_family_bill_dollars
+        FROM towns
+        WHERE population >50000
+        ORDER BY average_single_family_bill_dollars DESC
+        LIMIT 5
+    """)
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT name, population, average_single_family_bill_dollars
+        FROM towns
+        WHERE population >50000
+        ORDER BY average_single_family_bill_dollars DESC
+        LIMIT 5
+    """)
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
