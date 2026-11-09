@@ -271,7 +271,63 @@ def _(database, duckdb):
 
 @app.cell
 def _(requests):
-    requests.get("https://oim.zhili.dev/ma/towns/025/history", timeout=10).json()
+    requests.get("https://oim.zhili.dev/ma/towns", params={"county": "Norfolk", "per_page": 100}, timeout=10).json()["items"]
+    return
+
+
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ##Going Further
+    """)
+    return
+
+
+@app.cell
+def _(database, duckdb, requests):
+    towns_in_county = requests.get(
+        "https://oim.zhili.dev/ma/towns",
+        params={"county": "Norfolk", "per_page": 100},
+        timeout=10,
+    ).json()["items"]
+
+    with duckdb.connect(database) as _con:
+        _con.execute("""
+            CREATE TABLE town_bills_10yr (
+                town                    VARCHAR,
+                fiscal_year             INTEGER,
+                avg_single_family_bill  DOUBLE,
+                PRIMARY KEY (town, fiscal_year),
+                FOREIGN KEY (town) REFERENCES towns(name)
+            )
+        """)
+
+        for _town in towns_in_county:
+            _history_reply = requests.get(
+                "https://oim.zhili.dev/ma/towns/" + _town["dor_code"] + "/history",
+                timeout=10,
+            )
+            _town_history = _history_reply.json()
+
+            for _year in _town_history["years"]:
+                if _year["average_single_family_bill_dollars"] is not None:
+                    _con.execute(
+                        "INSERT INTO town_bills_10yr (town, fiscal_year, avg_single_family_bill) VALUES (?, ?, ?)",
+                        [_town["name"], _year["fiscal_year"], _year["average_single_family_bill_dollars"]]
+                    )
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT a.town, a.avg_single_family_bill - b.avg_single_family_bill AS growth
+        FROM town_bills_10yr a
+        JOIN town_bills_10yr b ON a.town = b.town AND a.fiscal_year = b.fiscal_year + 10
+        WHERE a.fiscal_year = (SELECT MAX(fiscal_year) FROM town_bills_10yr)
+        ORDER BY growth DESC
+        LIMIT 1
+    """)
     return
 
 
