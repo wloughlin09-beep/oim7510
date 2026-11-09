@@ -1,4 +1,4 @@
-    ```mermaid
+```mermaid
 erDiagram
     SHOW ||--o{ SHOW_GENRE : "categorized as"
     GENRE ||--o{ SHOW_GENRE : "includes"
@@ -26,7 +26,7 @@ erDiagram
 
     ROLE {
         int role_id PK
-        string role_name "e.g., 'Star', 'Writer', 'Director'"
+        string role_name "e.g., 'Actor', 'Writer', 'Director'"
     }
 
     SHOW_CREW {
@@ -44,4 +44,4 @@ erDiagram
         int show_id PK, FK
         int genre_id PK, FK
     }
-   ```
+```
