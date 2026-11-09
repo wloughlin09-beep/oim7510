@@ -125,5 +125,13 @@ def _(orders_by_hour):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    Real business data for a cafe would not look like this, you would expect sharp spikes in the morning and early afternoon, this is mostly flat, I will change the make data file to generate more realistic data by adding weighting to typical peak periods.
+    """)
+    return
+
+
 if __name__ == "__main__":
     app.run()
