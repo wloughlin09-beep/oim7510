@@ -149,5 +149,13 @@ def _(mo):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ##Row Counts
+    """)
+    return
+
+
 if __name__ == "__main__":
     app.run()
