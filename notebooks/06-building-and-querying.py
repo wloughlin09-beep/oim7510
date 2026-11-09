@@ -239,6 +239,14 @@ def _(database, duckdb):
     return
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ##Duplicate Check
+    """)
+    return
+
+
 @app.cell
 def _(database, duckdb):
     with duckdb.connect(database) as _con:
@@ -258,6 +266,12 @@ def _(database, duckdb):
                 ('Wellesley', 2024, 19472.0),
                 ('Wellesley', 2024, 19472.0)
         """)
+    return
+
+
+@app.cell
+def _(requests):
+    requests.get("https://oim.zhili.dev/ma/towns/025/history", timeout=10).json()
     return
 
 
