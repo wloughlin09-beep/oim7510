@@ -427,6 +427,16 @@ app._unparsable_cell(
 )
 
 
+@app.cell(hide_code=True)
+def _(mo):
+    mo.md(r"""
+    ##Answers You Already Knew.
+
+    N/a no queries run yet.
+    """)
+    return
+
+
 @app.cell
 def _(mo, weekly_top_sellers):
     _df = mo.sql(f"""SELECT * FROM weekly_top_sellers""")

@@ -500,6 +500,21 @@ def _(ask):
     return
 
 
+@app.cell
+def _(ask):
+    ask("""
+    SELECT county,
+           count(name) AS number_of_towns,
+           sum(population) AS total_population,
+           round(avg(average_single_family_bill_dollars), 2) AS avg_bill, 
+    round(max(average_single_family_bill_dollars), 2) AS max_bill, round(min(average_single_family_bill_dollars), 2) AS min_bill
+    FROM towns
+
+    ORDER BY county
+    """)
+    return
+
+
 @app.cell(hide_code=True)
 def _(mo):
     mo.md(r"""
@@ -531,6 +546,29 @@ def _(mo):
     3. For each county, the total population of its towns, and the share of those people living in towns with a bill over $10,000. Use `sum()` and a `CASE WHEN` inside it, or two queries. *Check yourself: the totals add up to 7,136,171.*
 
     **Going further.** Answer one question of your own about the towns with `GROUP BY`, and check it in polars on `town_rows`. Or download the TV show database from [Downloads](https://oim7510.github.io/downloads/), keep it out of your repository, and answer the two TV show questions from the topic slides.
+    """)
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT county, sum(population) AS pop
+        FROM towns
+        WHERE average_single_family_bill_dollars > 10000
+        GROUP BY county
+        ORDER BY pop DESC
+    """)
+    return
+
+
+@app.cell
+def _(ask):
+    ask("""
+        SELECT county, count(*) AS towns
+        FROM towns
+        GROUP BY county
+        ORDER BY towns DESC
     """)
     return
 
@@ -594,6 +632,21 @@ def _(mo):
 
     **Going further.** Rank the countries by freight per order instead, and see which countries move.
     """)
+    return
+
+
+@app.cell
+def _(ask, mo, requests):
+    _path = mo.notebook_dir().parent / "data" / "northwind-orders.parquet"
+    if not _path.exists():
+        _reply = requests.get(
+            "https://oim7510.github.io/data/northwind/orders.parquet",
+            timeout=30,
+        )
+        _reply.raise_for_status()
+        _path.write_bytes(_reply.content)
+    orders_file = _path.as_posix()
+    ask(f"SELECT count(*) AS orders FROM '{orders_file}'")
     return
 
 
